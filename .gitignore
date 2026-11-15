@@ -1,0 +1,38 @@
+# dependencies
+/node_modules
+
+# Next.js / build output
+/.next/
+/out/
+/build
+*.tsbuildinfo
+next-env.d.ts
+
+# env & secret (jangan pernah commit)
+.env
+.env.*
+!.env.example
+
+# Vercel
+.vercel
+
+# log
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# database lokal / dump (schema & seed di db/ tetap di-commit)
+*.sqlite
+*.sqlite3
+*.db
+/db/*.dump
+/db/*.bak
+
+# key/cert
+*.pem
