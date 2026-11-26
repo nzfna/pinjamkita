@@ -29,7 +29,7 @@ export function LoginForm({ googleError }: { googleError?: boolean }) {
     const r = await post('/api/auth/login', f);
     setBusy(false);
     if (!r.ok) return setErr(r.data.error || 'Gagal masuk.');
-    router.push(r.data.verified ? '/' : '/verifikasi-wa'); router.refresh();
+    router.push('/'); router.refresh();
   }
   return (
     <Shell title="Masuk" sub="Pakai nomor WhatsApp atau akun Google.">
@@ -56,10 +56,10 @@ export function RegisterForm() {
     const r = await post('/api/auth/register', f);
     setBusy(false);
     if (!r.ok) return setErr(r.data.error || 'Pendaftaran gagal.');
-    router.push('/verifikasi-wa'); router.refresh();
+    router.push('/'); router.refresh();
   }
   return (
-    <Shell title="Daftar" sub="Nomor WhatsApp aktif wajib diverifikasi.">
+    <Shell title="Daftar" sub="Buat akun untuk mulai meminjam barang.">
       <Google /><Or />
       <form onSubmit={submit} className="space-y-4">
         <Field label="Nama" value={f.name} onChange={set('name')} required />
@@ -72,44 +72,6 @@ export function RegisterForm() {
         <button className="btn-primary w-full" disabled={busy}>{busy ? 'Memproses...' : 'Daftar'}</button>
       </form>
       <p className="text-center text-sm text-ink/60">Sudah punya akun? <Link href="/masuk" className="font-semibold text-brand">Masuk</Link></p>
-    </Shell>
-  );
-}
-
-export function VerifyWa({ wa }: { wa: string }) {
-  const router = useRouter();
-  const [num, setNum] = useState(wa);
-  const [code, setCode] = useState('');
-  const [sent, setSent] = useState(false);
-  const [dev, setDev] = useState('');
-  const [err, setErr] = useState('');
-  const [busy, setBusy] = useState(false);
-  async function send() {
-    setBusy(true); setErr('');
-    const r = await post('/api/auth/otp', { wa: num });
-    setBusy(false);
-    if (!r.ok) return setErr(r.data.error || 'Gagal mengirim kode.');
-    setSent(true); setDev(r.data.devCode || '');
-  }
-  async function verify(e: React.FormEvent) {
-    e.preventDefault(); setBusy(true); setErr('');
-    const r = await post('/api/auth/otp/verify', { code });
-    setBusy(false);
-    if (!r.ok) return setErr(r.data.error || 'Kode salah.');
-    router.push('/'); router.refresh();
-  }
-  return (
-    <Shell title="Verifikasi WhatsApp" sub="Kami kirim kode 6 digit ke nomor WhatsApp-mu.">
-      <Field label="Nomor WhatsApp" inputMode="tel" value={num} onChange={(e) => setNum(e.target.value)} disabled={sent} />
-      {!sent ? <button onClick={send} disabled={busy || !num} className="btn-primary w-full">Kirim kode</button> : (
-        <form onSubmit={verify} className="space-y-4">
-          {dev && <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">Mode uji coba. Kodemu: <b>{dev}</b></p>}
-          <Field label="Kode verifikasi" inputMode="numeric" maxLength={6} value={code} onChange={(e) => setCode(e.target.value)} required />
-          <button className="btn-primary w-full" disabled={busy}>Verifikasi</button>
-          <button type="button" onClick={() => { setSent(false); setCode(''); }} className="w-full text-sm font-semibold text-brand">Ubah nomor atau kirim ulang</button>
-        </form>
-      )}
-      <Err m={err} />
     </Shell>
   );
 }

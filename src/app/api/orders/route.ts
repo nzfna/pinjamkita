@@ -6,7 +6,7 @@ import { waLink } from '@/lib/whatsapp';
 // Ajukan peminjaman dari isi keranjang
 export async function POST() {
   const u = await apiUser();
-  if (!u?.wa_verified) return json({ error: 'Verifikasi nomor WhatsApp dulu.' }, 401);
+  if (!u) return json({ error: 'Belum login.' }, 401);
   const clash = await sql`
     select distinct i.name from cart_items c join items i on i.id = c.item_id
     where c.user_id = ${u.id} and exists (

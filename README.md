@@ -17,10 +17,6 @@ Next.js 15 (App Router) + React + Tailwind + Postgres di Neon, siap deploy ke Ve
 ## Google login
 Buat OAuth Client (Web) di Google Cloud Console. Authorized redirect URI: `{APP_URL}/api/auth/google/callback`. Isi `GOOGLE_CLIENT_ID` dan `GOOGLE_CLIENT_SECRET`.
 
-## OTP WhatsApp
-- Uji coba: `WA_DEV_MODE=true` menampilkan kode di layar. Matikan di produksi.
-- Produksi: isi `WA_CLOUD_TOKEN` dan `WA_PHONE_ID` (WhatsApp Cloud API). Di luar jendela 24 jam Meta mewajibkan template message yang disetujui, sesuaikan `src/lib/whatsapp.ts`.
-
 ## Alur admin
 Admin mengubah status pesanan lewat API (belum ada UI admin):
 ```

@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { sql } from './db';
 
-export type User = { id: number; name: string; email: string; wa: string | null; wa_verified: boolean; notify: boolean; reputation: number };
+export type User = { id: number; name: string; email: string; wa: string | null; notify: boolean; reputation: number };
 
 const key = () => new TextEncoder().encode(process.env.AUTH_SECRET || 'dev-secret-ganti-di-produksi');
 
@@ -21,17 +21,16 @@ export async function getUser(): Promise<User | null> {
   if (!token) return null;
   try {
     const { payload } = await jwtVerify(token, key());
-    const r = await sql`select id, name, email, wa, wa_verified, notify, reputation from users where id = ${payload.uid as number}`;
+    const r = await sql`select id, name, email, wa, notify, reputation from users where id = ${payload.uid as number}`;
     return (r[0] as User) ?? null;
   } catch {
     return null;
   }
 }
-// Untuk halaman: wajib login dan nomor WA terverifikasi
+// Untuk halaman: wajib login
 export async function requireUser() {
   const u = await getUser();
   if (!u) redirect('/masuk');
-  if (!u.wa_verified) redirect('/verifikasi-wa');
   return u;
 }
 // Untuk API: balas null jika belum login

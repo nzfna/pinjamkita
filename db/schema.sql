@@ -3,18 +3,11 @@ create table if not exists users (
   name text not null,
   email text unique not null,
   wa text unique,
-  wa_verified boolean not null default false,
   password_hash text,
   google_id text unique,
   notify boolean not null default true,
   reputation int not null default 100,
   created_at timestamptz not null default now()
-);
-create table if not exists otps (
-  user_id int primary key references users(id) on delete cascade,
-  wa text not null,
-  code text not null,
-  expires_at timestamptz not null
 );
 create table if not exists items (
   id serial primary key,

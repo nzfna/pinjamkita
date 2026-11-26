@@ -27,7 +27,7 @@ export function AccountClient({ user }: { user: U }) {
     const r = await post('/api/me', f, 'PATCH');
     if (!r.ok) return setErr(r.data.error || 'Gagal menyimpan.');
     setEdit(false); setMsg('Perubahan tersimpan.');
-    router.push(r.data.needVerify ? '/verifikasi-wa' : '/akun'); router.refresh();
+    router.push('/akun'); router.refresh();
   }
   async function toggleNotify() {
     const v = !notify; setNotify(v);

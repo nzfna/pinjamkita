@@ -21,11 +21,11 @@ export async function GET(req: NextRequest) {
   }).then((r) => r.json());
   if (!g.email || !g.email_verified) return fail();
   const email = String(g.email).toLowerCase();
-  let r = await sql`select id, wa_verified from users where google_id = ${g.sub} or email = ${email}`;
-  if (!r.length) r = await sql`insert into users (name, email, google_id) values (${g.name || email}, ${email}, ${g.sub}) returning id, wa_verified`;
+  let r = await sql`select id from users where google_id = ${g.sub} or email = ${email}`;
+  if (!r.length) r = await sql`insert into users (name, email, google_id) values (${g.name || email}, ${email}, ${g.sub}) returning id`;
   else await sql`update users set google_id = ${g.sub} where id = ${r[0].id} and google_id is null`;
   await setSession(r[0].id);
-  const res = NextResponse.redirect(`${base}${r[0].wa_verified ? '/' : '/verifikasi-wa'}`);
+  const res = NextResponse.redirect(`${base}/`);
   res.cookies.delete('g_state');
   return res;
 }

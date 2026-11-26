@@ -17,9 +17,8 @@ export async function PATCH(req: Request) {
   if (!validWa(wa)) return json({ error: 'Nomor WhatsApp belum benar.' }, 400);
   const dup = await sql`select 1 from users where (email = ${email} or wa = ${wa}) and id <> ${u.id}`;
   if (dup.length) return json({ error: 'Email atau nomor WhatsApp sudah dipakai akun lain.' }, 409);
-  const waChanged = wa !== u.wa;
-  await sql`update users set name = ${name}, email = ${email}, wa = ${wa}, wa_verified = ${waChanged ? false : u.wa_verified} where id = ${u.id}`;
-  return json({ ok: true, needVerify: waChanged });
+  await sql`update users set name = ${name}, email = ${email}, wa = ${wa} where id = ${u.id}`;
+  return json({ ok: true });
 }
 export async function DELETE() {
   const u = await apiUser();

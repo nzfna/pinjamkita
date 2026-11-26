@@ -76,7 +76,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<SP>
 
       <section className="grid gap-4 sm:grid-cols-3" aria-label="Keamanan">
         {[
-          [ShieldCheck, 'Pengguna terverifikasi', 'Setiap akun memakai nomor WhatsApp aktif yang sudah dicek.'],
+          [ShieldCheck, 'Kontak jelas', 'Setiap akun memakai nomor WhatsApp aktif untuk koordinasi serah-terima.'],
           [Wallet, 'Deposit aman', 'Deposit kembali penuh jika barang kembali utuh dan tepat waktu.'],
           [BellRing, 'Pengingat WhatsApp', 'Pengingat H-1 dan hari pengembalian, jadi tidak ada yang lupa.'],
         ].map(([I, t, d]: any) => (
