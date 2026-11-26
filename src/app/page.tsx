@@ -3,9 +3,9 @@ import { Search, MapPin, ShieldCheck, Wallet, BellRing } from 'lucide-react';
 import { sql } from '@/lib/db';
 import { getUser } from '@/lib/auth';
 import { CATS } from '@/lib/utils';
+import { waLink } from '@/lib/whatsapp';
 import { ItemCard, type Item } from '@/components/ItemCard';
 import { CatIcon, Empty } from '@/components/ui';
-
 
 type SP = { q?: string; kategori?: string; lokasi?: string };
 
@@ -13,11 +13,12 @@ export default async function Home({ searchParams }: { searchParams: Promise<SP>
   const { q = '', kategori = '', lokasi = '' } = await searchParams;
   const user = await getUser();
   const [items, locs, cols] = await Promise.all([
-    sql`select * from items where (${q} = '' or name ilike '%' || ${q} || '%') and (${kategori} = '' or category = ${kategori})
+    sql`select items.*, items.stock - (select count(*) from order_items oi join orders o on o.id = oi.order_id where oi.item_id = items.id and o.status in ('diajukan','bisa_dipinjam','dipinjam') and current_date >= oi.start_date and current_date < oi.start_date + oi.days)::int as sisa_now from items where (${q} = '' or name ilike '%' || ${q} || '%') and (${kategori} = '' or category = ${kategori})
         and (${lokasi} = '' or location = ${lokasi}) order by available desc, id`,
     sql`select distinct location from items order by 1`,
     user ? sql`select item_id, kind from collections where user_id = ${user.id}` : Promise.resolve([]),
   ]);
+  const titip = waLink('Halo admin PinjamKita, saya ingin menitipkan barang untuk disewakan.');
   const kinds = (id: number) => cols.filter((c) => c.item_id === id).map((c) => c.kind as string);
   const href = (k: string) => `/?${new URLSearchParams({ ...(q && { q }), ...(lokasi && { lokasi }), ...(k && { kategori: k }) })}`;
 
@@ -56,8 +57,11 @@ export default async function Home({ searchParams }: { searchParams: Promise<SP>
       <section aria-label="Daftar barang">
         <h2 className="mb-4 text-xl font-bold">{q || kategori || lokasi ? 'Hasil pencarian' : 'Barang populer'}</h2>
         {items.length === 0 ? (
-          <Empty title="Barang tidak ditemukan" hint="Coba kata kunci, kategori, atau lokasi lain.">
-            <Link href="/" className="btn-secondary mt-2">Lihat semua barang</Link>
+          <Empty title={q || kategori || lokasi ? 'Barang tidak ditemukan' : 'Belum ada barang'} hint={q || kategori || lokasi ? 'Coba kata kunci, kategori, atau lokasi lain.' : 'Stok sedang diisi. Punya barang menganggur? Titipkan dan dapat penghasilan tambahan.'}>
+            <div className="mt-2 flex flex-wrap justify-center gap-2">
+              {(q || kategori || lokasi) && <Link href="/" className="btn-secondary">Lihat semua barang</Link>}
+              {titip && <a href={titip} target="_blank" rel="noreferrer" className="btn-primary">Titipkan barangmu</a>}
+            </div>
           </Empty>
         ) : (
           <div className="grid grid-cols-1 gap-4 min-[480px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -65,6 +69,10 @@ export default async function Home({ searchParams }: { searchParams: Promise<SP>
           </div>
         )}
       </section>
+
+      {titip && items.length > 0 && (
+        <p className="text-center text-sm text-ink/60">Punya barang menganggur? <a href={titip} target="_blank" rel="noreferrer" className="font-semibold text-brand">Titipkan lewat WhatsApp</a></p>
+      )}
 
       <section className="grid gap-4 sm:grid-cols-3" aria-label="Keamanan">
         {[

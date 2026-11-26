@@ -24,6 +24,7 @@ create table if not exists items (
   price_per_day int not null,
   deposit int not null,
   description text,
+  stock int not null default 1,
   available boolean not null default true
 );
 create table if not exists collections (
@@ -61,20 +62,6 @@ create table if not exists order_items (
   item_id int not null references items(id),
   days int not null,
   price int not null,
+  start_date date not null,
   primary key (order_id, item_id)
 );
-
--- Migrasi kolom: `create table if not exists` tidak menambah kolom ke tabel lama,
--- jadi kolom baru wajib ditambahkan lewat alter table yang idempoten.
-alter table orders add column if not exists pickup_address text;
-alter table orders add column if not exists pickup_note text;
-alter table orders add column if not exists pickup_lat double precision;
-alter table orders add column if not exists pickup_lng double precision;
-alter table orders add column if not exists return_note text;
-alter table orders add column if not exists cancel_reason text;
-
--- Constraint status juga perlu dimigrasi: tabel lama bisa punya daftar status
--- tanpa 'dibatalkan', sehingga update pembatalan ditolak.
-alter table orders drop constraint if exists orders_status_check;
-alter table orders add constraint orders_status_check
-  check (status in ('diajukan','bisa_dipinjam','dipinjam','dikembalikan','dibatalkan'));

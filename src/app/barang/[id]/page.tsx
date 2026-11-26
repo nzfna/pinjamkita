@@ -6,6 +6,8 @@ import { getUser } from '@/lib/auth';
 import { rp } from '@/lib/utils';
 import { ItemActions, type Item } from '@/components/ItemCard';
 import { CatIcon } from '@/components/ui';
+import { dailyLeft } from '@/lib/availability';
+import { AvailabilityCalendar } from '@/components/AvailabilityCalendar';
 
 export default async function Detail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -13,6 +15,7 @@ export default async function Detail({ params }: { params: Promise<{ id: string 
   const [it] = await sql`select * from items where id = ${Number(id)}`;
   if (!it) notFound();
   const user = await getUser();
+  const days = await dailyLeft(it.id);
   const cols = user ? await sql`select kind from collections where user_id = ${user.id} and item_id = ${it.id}` : [];
   return (
     <div className="space-y-5">
@@ -27,11 +30,12 @@ export default async function Detail({ params }: { params: Promise<{ id: string 
           <dl className="card divide-y divide-ink/10 text-sm">
             <div className="flex justify-between p-3"><dt className="text-ink/60">Harga sewa</dt><dd className="font-bold text-brand">{rp(it.price_per_day)} / hari</dd></div>
             <div className="flex justify-between p-3"><dt className="text-ink/60">Deposit (dikembalikan)</dt><dd className="font-semibold">{rp(it.deposit)}</dd></div>
-            <div className="flex justify-between p-3"><dt className="text-ink/60">Ketersediaan</dt><dd className="font-semibold">{it.available ? 'Tersedia' : 'Sedang dipinjam'}</dd></div>
+            <div className="flex justify-between p-3"><dt className="text-ink/60">Ketersediaan</dt><dd className="font-semibold">Stok {it.stock} unit</dd></div>
           </dl>
           <ItemActions item={it as Item} initial={cols.map((c) => c.kind)} authed={!!user} />
         </div>
       </div>
+      <AvailabilityCalendar days={days} stock={it.stock} />
     </div>
   );
 }

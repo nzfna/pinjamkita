@@ -1,0 +1,10 @@
+alter table items add column if not exists stock int not null default 1;
+alter table order_items add column if not exists start_date date;
+update order_items oi set start_date = o.start_date from orders o where o.id = oi.order_id and oi.start_date is null;
+alter table order_items alter column start_date set not null;
+update items set available = true;
+update items set stock = 2 where name = 'Tenda dome kapasitas 4';
+update items set stock = 3 where name = 'Carrier 60L';
+update items set stock = 4 where name = 'Sleeping bag';
+update items set stock = 2 where name = 'Mic wireless 2 buah';
+update items set stock = 3 where name = 'Tripod kamera';

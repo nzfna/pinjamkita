@@ -7,7 +7,7 @@ import { rp } from '@/lib/utils';
 import { useCart } from './CartProvider';
 import { CatIcon, post } from './ui';
 
-export type Item = { id: number; name: string; category: string; location: string; price_per_day: number; deposit: number; available: boolean; description?: string };
+export type Item = { id: number; name: string; category: string; location: string; price_per_day: number; deposit: number; available: boolean; stock: number; sisa_now?: number; description?: string };
 
 export function useCollect(itemId: number, initial: string[], authed: boolean) {
   const router = useRouter();
@@ -53,7 +53,13 @@ export function ItemCard({ item, initial, authed }: { item: Item; initial: strin
           <h3 className="font-bold leading-snug">{item.name}</h3>
           <p className="flex items-center gap-1 text-sm text-ink/60"><MapPin size={14} /> {item.location}</p>
           <p className="text-sm"><span className="font-bold text-brand">{rp(item.price_per_day)}</span> <span className="text-ink/60">/ hari</span>
-            {!item.available && <span className="badge ml-2 bg-amber-100 text-amber-800">Sedang dipinjam</span>}</p>
+          </p>
+          <p className="flex flex-wrap items-center gap-2 text-xs text-ink/60">
+            <span>Stok {item.stock} unit</span>
+            {item.sisa_now !== undefined && (item.sisa_now <= 0
+              ? <span className="badge bg-amber-100 text-amber-800">Dipinjam hari ini</span>
+              : <span className="badge bg-mint text-brand-dark">Sisa {item.sisa_now} hari ini</span>)}
+          </p>
         </div>
         <div className="mt-auto space-y-2">
           <Link href={`/barang/${item.id}`} className="btn-secondary w-full">Lihat detail</Link>
